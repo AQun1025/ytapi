@@ -4,31 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web2DL</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link rel="icon" type="image/png" href="/static/icon.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
 </head>
 <body>
     <div class="container">
         <h1>🎵 Web2DL</h1>
         <h3>YouTube 音樂下載器</h3>
-
-        <form id="form">
-            <textarea id="url" placeholder="請貼上 YouTube 連結..." required></textarea>
-            <select id="format">
+        <form id="download-form">
+            <textarea name="url" id="url-input" placeholder="請貼上 YouTube 連結..." required></textarea>
+            <select name="format" id="format">
                 <option value="mp3">MP3</option>
                 <option value="wav">WAV</option>
             </select>
-            <input type="submit" id="submit" value="資料讀取">
+            <input type="submit" value="資料讀取">
         </form>
-
-        <a id="download-btn" href="#" style="display:none;">
-            <input type="button" value="下載音樂">
-        </a>
+        <div id="download-btn"></div>
     </div>
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <div>資料讀取中... 請稍候</div>
+        <div>資料讀取中...</div>
     </div>
 
     <footer>
@@ -36,47 +32,32 @@
     </footer>
 
     <script>
-        document.getElementById("form").addEventListener("submit", function (e) {
+        const form = document.getElementById('download-form');
+        const loadingScreen = document.getElementById('loading-screen');
+        const downloadBtn = document.getElementById('download-btn');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const url = document.getElementById('url-input').value;
+            const format = document.getElementById('format').value;
 
-            const url = document.getElementById("url").value.trim();
-            const format = document.getElementById("format").value;
-            const loading = document.getElementById("loading-screen");
-            const downloadBtn = document.getElementById("download-btn");
+            loadingScreen.style.display = 'flex';
 
-            if (!url) {
-                alert("請輸入 YouTube 連結");
-                return;
+            const response = await fetch('/api/download', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ url, format })
+            });
+
+            const result = await response.json();
+            loadingScreen.style.display = 'none';
+
+            if (result.status === 'success') {
+                downloadBtn.innerHTML = `<input type="button" value="下載音樂" onclick="window.location='${result.download_url}'">`;
+            } else {
+                downloadBtn.innerHTML = `<p style="color:red;">錯誤：${result.message}</p>`;
             }
-
-            loading.style.display = "flex"; // 顯示 loading 畫面
-
-            fetch("/api/download", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url, format }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    loading.style.display = "none";
-
-                    if (data.status === "success") {
-                        downloadBtn.href = data.download_url;
-                        downloadBtn.style.display = "inline-block";
-                    } else {
-                        alert("錯誤：" + data.message);
-                    }
-                })
-                .catch((err) => {
-                    loading.style.display = "none";
-                    alert("伺服器錯誤：" + err);
-                });
         });
-
-        // 隱藏 loading 畫面（保險機制）
-        window.onload = () => {
-            document.getElementById("loading-screen").style.display = "none";
-        };
     </script>
 </body>
 </html>
