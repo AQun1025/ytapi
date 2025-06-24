@@ -1,49 +1,73 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>Web2DL</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Web2DL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
-    <h1>🎵 Web2DL</h1>
-    <h3>YouTube 音樂下載器</h3>
+    <div class="container">
+        <h1>🎵 Web2DL</h1>
+        <h3>YouTube 音樂下載器</h3>
+        <form id="download-form">
+            <textarea id="url-input" placeholder="請貼上 YouTube 連結..." required></textarea>
+            <select id="format-select">
+                <option value="mp3">MP3</option>
+                <option value="wav">WAV</option>
+            </select>
+            <input type="submit" id="submit-btn" value="資料讀取">
+        </form>
 
-    <form id="download-form">
-      <textarea id="url" placeholder="請貼上 YouTube 連結..." rows="3" required></textarea>
-      <select id="format">
-        <option value="mp3">MP3</option>
-        <option value="wav">WAV</option>
-      </select>
-      <input type="submit" value="下載音樂">
-    </form>
+        <!-- PNG icon -->
+        <div class="icon-result" id="icon-result">
+            <img src="{{ url_for('static', filename='icon.png') }}" alt="下載完成" style="width: 80px; height: 80px;">
+        </div>
+    </div>
 
-    <div id="result"></div>
-  </div>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p>處理中...請稍候</p>
+    </div>
 
-  <footer>由 AQun 製作 • 如無法下載請自理 😎</footer>
+    <footer>由 AQun 製作 • 如無法下載請自理 AQun是打鼓不是打code的 😎</footer>
 
-  <script>
-    document.getElementById("download-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const url = document.getElementById("url").value;
-      const format = document.getElementById("format").value;
+    <script>
+        const form = document.getElementById("download-form");
+        const loadingScreen = document.getElementById("loading-screen");
+        const iconResult = document.getElementById("icon-result");
+        const submitBtn = document.getElementById("submit-btn");
 
-      const res = await fetch("/api/download", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, format })
-      });
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            loadingScreen.style.display = "flex";
+            iconResult.style.display = "none";
+            submitBtn.classList.remove("visible");
 
-      const data = await res.json();
-      const resultDiv = document.getElementById("result");
-      if (data.status === "success") {
-        resultDiv.innerHTML = `<p>✅ 下載成功：${data.title}</p><a href="${data.download_url}" target="_blank">點此下載</a>`;
-      } else {
-        resultDiv.innerHTML = `<p style="color:red;">❌ 錯誤：${data.message}</p>`;
-      }
-    });
-  </script>
+            const url = document.getElementById("url-input").value;
+            const format = document.getElementById("format-select").value;
+
+            const response = await fetch("/api/download", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url, format })
+            });
+
+            const data = await response.json();
+            loadingScreen.style.display = "none";
+
+            if (data.status === "success") {
+                iconResult.style.display = "block";
+                submitBtn.value = "下載音樂";
+                submitBtn.classList.add("visible");
+                submitBtn.onclick = () => {
+                    window.location.href = data.download_url;
+                };
+            } else {
+                alert("下載失敗：" + data.message);
+            }
+        });
+    </script>
 </body>
 </html>

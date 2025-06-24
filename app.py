@@ -8,6 +8,8 @@ app = Flask(__name__)
 DOWNLOAD_DIR = os.path.join(os.getcwd(), 'downloads')
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
+COOKIE_FILE = 'cookies.txt'  # 若你導出 cookies，放在專案目錄下
+
 def download_audio(url, format_choice):
     uid = str(uuid.uuid4())[:8]
     output_template = os.path.join(DOWNLOAD_DIR, f"{uid}_%(title).80s.%(ext)s")
@@ -16,13 +18,15 @@ def download_audio(url, format_choice):
         'outtmpl': output_template,
         'quiet': True,
         'format': 'bestaudio/best',
-        'cookiefile': 'cookies.txt',  # ✅ 使用 cookie.txt 解鎖 YouTube 限制
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': format_choice,
             'preferredquality': '192' if format_choice == 'mp3' else None,
         }]
     }
+
+    if os.path.exists(COOKIE_FILE):
+        ydl_opts['cookiefile'] = COOKIE_FILE
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -49,8 +53,8 @@ def api_download():
     format_choice = data.get('format', 'mp3')
 
     if not url:
-        return jsonify({'status': 'error', 'message': 'URL 未提供'})
-
+        return jsonify({'status': 'error', 'message': '未提供連結'})
+    
     result = download_audio(url, format_choice)
     return jsonify(result)
 

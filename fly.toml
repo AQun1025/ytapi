@@ -1,4 +1,4 @@
-app = "ytapi-aqun"
+app = "web2dl"
 
 [env]
 PORT = "5000"
