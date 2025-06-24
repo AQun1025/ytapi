@@ -5,10 +5,13 @@ import uuid
 import re
 
 app = Flask(__name__)
+
+# 建立下載資料夾
 DOWNLOAD_DIR = os.path.join(os.getcwd(), 'downloads')
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-COOKIE_PATH = os.path.join(os.getcwd(), "cookie.txt")
+# Cookies 檔案路徑（你需要準備 cookie.txt）
+COOKIE_PATH = os.path.join(os.getcwd(), 'cookie.txt')
 
 def download_audio(url, format_choice):
     uid = str(uuid.uuid4())[:8]
@@ -18,7 +21,7 @@ def download_audio(url, format_choice):
         'outtmpl': output_template,
         'quiet': True,
         'format': 'bestaudio/best',
-        'cookiefile': COOKIE_PATH,
+        'cookiefile': COOKIE_PATH if os.path.exists(COOKIE_PATH) else None,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': format_choice,
@@ -50,7 +53,7 @@ def api_download():
     format_choice = data.get('format', 'mp3')
 
     if not url:
-        return jsonify({'status': 'error', 'message': 'URL 未提供'})
+        return jsonify({'status': 'error', 'message': '請提供 URL'})
 
     result = download_audio(url, format_choice)
     return jsonify(result)

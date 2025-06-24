@@ -49,7 +49,7 @@
                 return;
             }
 
-            loading.style.display = "flex";
+            loading.style.display = "flex"; // 顯示 loading 畫面
 
             fetch("/api/download", {
                 method: "POST",
@@ -72,6 +72,11 @@
                     alert("伺服器錯誤：" + err);
                 });
         });
+
+        // 隱藏 loading 畫面（保險機制）
+        window.onload = () => {
+            document.getElementById("loading-screen").style.display = "none";
+        };
     </script>
 </body>
 </html>
