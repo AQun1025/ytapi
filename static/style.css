@@ -60,16 +60,15 @@ input[type="submit"] {
     background-color: #3da9a9;
     color: white;
     border: none;
-    padding: 16px 32px;
-    font-size: 1.2em;
+    padding: 14px 28px; /* 稍微縮小一點點 */
+    font-size: 1.1em;
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.3s;
-    /* display: none; // 刪除這行讓按鈕預設顯示 */
 }
 
 input[type="submit"].visible {
-    display: block; /* 顯示按鈕 */
+    display: block;
 }
 
 input[type="submit"]:hover {
@@ -130,8 +129,5 @@ footer {
 
 /* Icon 生成樣式 */
 .icon-result {
-    margin-top: 20px;
-    font-size: 2em;
-    color: #3da9a9;
-    display: none;
+    display: none; /* 移除成功後 icon 顯示 */
 }
