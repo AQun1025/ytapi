@@ -65,11 +65,11 @@ input[type="submit"] {
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.3s;
-    display: none; /* 初始隱藏 */
+    /* display: none; // 刪除這行讓按鈕預設顯示 */
 }
 
 input[type="submit"].visible {
-    display: block;
+    display: block; /* 顯示按鈕 */
 }
 
 input[type="submit"]:hover {
@@ -84,7 +84,7 @@ footer {
     text-align: center;
 }
 
-/* 載入畫面 */
+/* 🌀 載入畫面樣式 */
 #loading-screen {
     position: absolute;
     top: 0;
@@ -99,7 +99,7 @@ footer {
     z-index: 9999;
     color: #666;
     font-size: 1.2em;
-    display: none;
+    display: none; /* 預設隱藏 */
 }
 
 .spinner {
@@ -117,17 +117,21 @@ footer {
     100% { transform: rotate(360deg); }
 }
 
-.icon-result {
-    margin-top: 20px;
-    display: none;
-}
-
-/* 手機優化 */
+/* 📱 手機版適應 */
 @media (max-width: 600px) {
     textarea {
         font-size: 1em;
     }
+
     input[type="submit"] {
         width: 100%;
     }
+}
+
+/* Icon 生成樣式 */
+.icon-result {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #3da9a9;
+    display: none;
 }
