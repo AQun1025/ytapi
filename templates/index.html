@@ -1,27 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web2DL</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Web2DL</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>🎵 Web2DL</h1>
-        <h3>YouTube 音樂下載器</h3>
-        <form action="/download" method="post">
-            <textarea name="url" rows="6" placeholder="請輸入 YouTube 連結，支援多個（\n 分隔）"></textarea>
-            <div style="margin: 15px 0;">
-                <label><input type="radio" name="format" value="mp3" checked> MP3</label>
-                <label><input type="radio" name="format" value="wav"> WAV</label>
-            </div>
-            <input type="submit" value="下載音樂">
-        </form>
-    </div>
+  <div class="container">
+    <h1>🎵 Web2DL</h1>
+    <h3>YouTube 音樂下載器</h3>
 
-    <footer>
-        由 AQun 製作 • 如無法下載，請自行解決，AQun 是打鼓的，不是打 Code 的
-    </footer>
+    <form id="download-form">
+      <textarea id="url" placeholder="請貼上 YouTube 連結..." rows="3" required></textarea>
+      <select id="format">
+        <option value="mp3">MP3</option>
+        <option value="wav">WAV</option>
+      </select>
+      <input type="submit" value="下載音樂">
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <footer>由 AQun 製作 • 如無法下載請自理 😎</footer>
+
+  <script>
+    document.getElementById("download-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = document.getElementById("url").value;
+      const format = document.getElementById("format").value;
+
+      const res = await fetch("/api/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, format })
+      });
+
+      const data = await res.json();
+      const resultDiv = document.getElementById("result");
+      if (data.status === "success") {
+        resultDiv.innerHTML = `<p>✅ 下載成功：${data.title}</p><a href="${data.download_url}" target="_blank">點此下載</a>`;
+      } else {
+        resultDiv.innerHTML = `<p style="color:red;">❌ 錯誤：${data.message}</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
